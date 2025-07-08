@@ -2,6 +2,8 @@ package org.example;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.example.model.MessageModelRequest;
 import org.example.model.MessageModelResponse;
 import org.springframework.messaging.converter.StringMessageConverter;
@@ -14,6 +16,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import java.lang.reflect.Type;
 import java.util.Scanner;
 public class Main {
+    private static final Logger _logger = LogManager.getLogger(Main.class);
     private static final String WEBSOCKET_URL = "ws://localhost:8080/ws";
     private static final String SUBSCRIBE_TOPIC = "/topic/messages";
     private static final String SEND_DESTINATION = "/app/chat";
@@ -46,6 +49,7 @@ public class Main {
                     mapper.registerModule(new JavaTimeModule());
 
                     try {
+                        _logger.info(json);
                         MessageModelResponse messageModel = mapper.readValue(json, MessageModelResponse.class);
                         System.out.println(String.format("%s %s %s", messageModel.getDateTime(), messageModel.getLogin(), messageModel.getMessage()));
                     } catch (JsonProcessingException e) {
