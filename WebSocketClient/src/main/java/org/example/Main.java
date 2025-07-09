@@ -13,11 +13,31 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.Properties;
 import java.util.Scanner;
 public class Main {
     private static final Logger _logger = LogManager.getLogger(Main.class);
-    private static final String WEBSOCKET_URL = "ws://localhost:8080/ws";
+    private static final String WEBSOCKET_URL;
+    static {
+        // Load properties file
+        Properties props = new Properties();
+        try (InputStream input = Main.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (input != null) {
+                props.load(input);
+                // Set system property if not already set
+                if (System.getProperty("websocket.url") == null) {
+                    System.setProperty("websocket.url", props.getProperty("websocket.url", "ws://localhost:8080/ws"));
+                }
+            }
+        } catch (IOException e) {
+            _logger.error("Failed to load application.properties", e);
+        }
+        WEBSOCKET_URL = System.getProperty("websocket.url", "ws://localhost:8080/ws");
+    }
     private static final String SUBSCRIBE_TOPIC = "/topic/messages";
     private static final String SEND_DESTINATION = "/app/chat";
 
